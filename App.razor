@@ -1,0 +1,122 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<main>
+
+    <h1>🎹 WebAudio Piano</h1>
+
+    <p>Try playing sounds with the keyboard keys A S D F G H J K!</p>
+
+    <div class="keys" oncontextmenu="return false">
+
+        @foreach (var key in _noteFrequencies.Keys)
+        {
+            <div @key="key" class="key" @onpointerdown="@(() => OnPointerDown(key))" @onpointerup="@(() => OnPointerUp(key))">
+                @key.Substring(3,1)
+            </div>
+        }
+
+    </div>
+
+</main>
+
+<footer>
+    <a href="https://github.com/sample-by-jsakamoto/Blazor-WebAudio-Piano/blob/master/LICENSE" target="_blank">GNU General Public License v3.0</a>
+    <span>|</span>
+    <a href="https://github.com/sample-by-jsakamoto/Blazor-WebAudio-Piano/" target="_blank">Source Code</a>
+    <span>|</span>
+    <span>Powered by <a href="https://github.com/KristofferStrube/Blazor.WebAudio" target="_blank">KristofferStrube.Blazor.WebAudio</a></span>
+</footer>
+
+@code {
+    private DotNetObjectReference<App>? _refThis;
+
+    private IJSObjectReference? _keyEventHandler;
+
+    private AudioContext? _audioContext;
+
+    private readonly IReadOnlyDictionary<string, float> _noteFrequencies = new Dictionary<string, float>
+    {
+        ["KeyA"] = 261.63f, // C4
+        ["KeyS"] = 293.66f, // D4
+        ["KeyD"] = 329.63f, // E4
+        ["KeyF"] = 349.23f, // F4
+        ["KeyG"] = 392.0f, // G4
+        ["KeyH"] = 440.0f, // A4
+        ["KeyJ"] = 493.88f, // B4
+        ["KeyK"] = 523.25f, // C5
+    };
+
+    private Dictionary<string, Task<OscillatorNode?>> _playingQueue = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (this.RendererInfo.IsInteractive)
+        {
+            this._audioContext = await AudioContext.CreateAsync(JSRuntime);
+
+            this._refThis = DotNetObjectReference.Create(this);
+            await using var module = await this.JSRuntime.InvokeAsync<IJSObjectReference>("import", "./App.razor.js");
+            this._keyEventHandler = await module.InvokeAsync<IJSObjectReference>("init", _refThis);
+        }
+    }
+
+    private async Task<OscillatorNode?> PlayNoteAsync(string code)
+    {
+        if (!_noteFrequencies.TryGetValue(code, out var frequency)) return null;
+        if (_audioContext is null) return null;
+
+        var oscillator = await _audioContext.CreateOscillatorAsync();
+        var gainNode = await _audioContext.CreateGainAsync();
+        await oscillator.SetTypeAsync(OscillatorType.Sine);
+        await oscillator.GetFrequencyAsync().ContinueWith(async (Task<AudioParam> task) => await task.Result.SetValueAsync(frequency));
+        await gainNode.GetGainAsync().ContinueWith(async (Task<AudioParam> task) => await task.Result.SetValueAsync(0.5f));
+        await oscillator.ConnectAsync(gainNode);
+        await gainNode.ConnectAsync(await _audioContext.GetDestinationAsync());
+        await oscillator.StartAsync();
+        return oscillator;
+    }
+
+    private void OnPointerDown(string code)
+    {
+        if (_playingQueue.TryGetValue(code, out var _)) return;
+        _playingQueue.Add(code, PlayNoteAsync(code));
+    }
+
+    private async Task OnPointerUp(string code)
+    {
+        if (!_playingQueue.TryGetValue(code, out var playingTask)) return;
+        _playingQueue.Remove(code);
+
+        var oscillator = await playingTask;
+        if (oscillator is null) return;
+        await oscillator.StopAsync();
+    }
+
+    [JSInvokable]
+    public void OnKeyDown(string code)
+    {
+        OnPointerDown(code);
+    }
+
+    [JSInvokable]
+    public async Task OnKeyUp(string code)
+    {
+        await OnPointerUp(code);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (this._keyEventHandler is not null)
+        {
+            try
+            {
+                await _keyEventHandler.InvokeVoidAsync("dispose");
+                await _keyEventHandler.DisposeAsync();
+            }
+            catch (JSDisconnectedException) { }
+        }
+        if (this._audioContext is not null) await this._audioContext.DisposeAsync();
+        _refThis?.Dispose();
+    }
+}

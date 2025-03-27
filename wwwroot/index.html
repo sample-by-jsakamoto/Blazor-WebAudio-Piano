@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebAudio Piano</title>
+    <base href="/" />
+
+    <meta property="og:url" content="https://sample-by-jsakamoto.github.io/Blazor-WebAudio-Piano/" />
+    <meta property="og:title" content="Blazor - WebAudio Piano" />
+    <meta property="og:image" content="https://sample-by-jsakamoto.github.io/Blazor-WebAudio-Piano/images/social-preview.png" />
+    <meta property="og:description" content="This sample program demonstrates how easily Blazor apps can access the Web Audio API." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="stylesheet" href="css/blazor-ui.css" />
+    <link rel="stylesheet" href="WebAudioPiano.styles.css" />
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

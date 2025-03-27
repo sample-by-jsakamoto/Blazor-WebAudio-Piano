@@ -1,0 +1,42 @@
+﻿main {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin: auto;
+    max-width: 600px;
+}
+
+.keys {
+    display: flex;
+    justify-content: center;
+    touch-action: none;
+}
+
+.key {
+    width: 40px;
+    height: 120px;
+    margin: 5px;
+    background: white;
+    border: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+}
+
+    .key:active {
+        background: lightgray;
+    }
+
+footer {
+    margin: auto;
+    max-width: 800px;
+    font-family: Arial, sans-serif;
+    border-top: 1px solid #ccc;
+    margin-top: 64px;
+    padding-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
