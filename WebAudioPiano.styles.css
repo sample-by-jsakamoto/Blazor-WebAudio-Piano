@@ -1,0 +1,43 @@
+/* /App.razor.rz.scp.css */
+main[b-j1kifgrtk7] {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin: auto;
+    max-width: 600px;
+}
+
+.keys[b-j1kifgrtk7] {
+    display: flex;
+    justify-content: center;
+    touch-action: none;
+}
+
+.key[b-j1kifgrtk7] {
+    width: 40px;
+    height: 120px;
+    margin: 5px;
+    background: white;
+    border: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+}
+
+    .key:active[b-j1kifgrtk7] {
+        background: lightgray;
+    }
+
+footer[b-j1kifgrtk7] {
+    margin: auto;
+    max-width: 800px;
+    font-family: Arial, sans-serif;
+    border-top: 1px solid #ccc;
+    margin-top: 64px;
+    padding-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
